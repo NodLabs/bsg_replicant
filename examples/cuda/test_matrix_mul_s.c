@@ -68,7 +68,6 @@ int kernel_matrix_mul (int argc, char **argv) {
 
         srand(time);
 
-
         /*****************************************************************************************************************
         * Define path to binary.
         * Initialize device, load binary and unfreeze tiles.
@@ -79,6 +78,10 @@ int kernel_matrix_mul (int argc, char **argv) {
                 bsg_pr_err("failed to initialize device.\n");
                 return rc;
         }
+
+        const hb_mc_config_t *config = hb_mc_manycore_get_config(device.mc);
+        hb_mc_dimension_t dim = hb_mc_config_get_dimension_vcore(config);
+        bsg_pr_test_info("meesa X: %d Y: %d\n", hb_mc_dimension_get_x(dim), hb_mc_dimension_get_y(dim));
 
 
         rc = hb_mc_device_program_init(&device, bin_path, ALLOC_NAME, 0);
@@ -132,7 +135,21 @@ int kernel_matrix_mul (int argc, char **argv) {
                 B_host[i] = rand() & 0xFFFF;
         }
 
+        for (int m = 0; m < M; m++) {
+          printf("A %d = ", m);
+          for (int n = 0; n < N; n++) {
+            printf("%d ", A_host[m * N + n]);
+          }
+          printf("\n");
+        }
 
+        for (int n = 0; n < N; n++) {
+          printf("B %d = ", n);
+          for (int p = 0; p < P; p++) {
+            printf("%d ", B_host[n * P + p]);
+          }
+          printf("\n");
+        }
 
 
         /*****************************************************************************************************************
@@ -161,12 +178,14 @@ int kernel_matrix_mul (int argc, char **argv) {
         * Define tg_dim_x/y: number of tiles in each tile group
         * Calculate grid_dim_x/y: number of tile groups needed based on block_size_x/y
         ******************************************************************************************************************/
-        uint32_t block_size_x = 4;
+        uint32_t block_size_x = 8;
         uint32_t block_size_y = 4;
 
-        hb_mc_dimension_t tg_dim = { .x = 2, .y = 2 };
+        hb_mc_dimension_t tg_dim = { .x = 8, .y = 4 };
 
         hb_mc_dimension_t grid_dim = { .x = P / block_size_x, .y = M / block_size_y };
+
+        printf("G %d %d\n", grid_dim.x, grid_dim.y);
 
 
         /*****************************************************************************************************************
@@ -183,13 +202,13 @@ int kernel_matrix_mul (int argc, char **argv) {
                 return rc;
         }
 
-
         uint64_t cycle1 = 0;
         rc = hb_mc_manycore_get_cycle(device.mc, &cycle1);
         if (rc != HB_MC_SUCCESS) {
           bsg_pr_err("failed to get cycle count.\n");
           return rc;
         }
+
 
         /*****************************************************************************************************************
         * Launch and execute all tile groups on device and wait for all to finish.
@@ -199,6 +218,7 @@ int kernel_matrix_mul (int argc, char **argv) {
                 bsg_pr_err("failed to execute tile groups.\n");
                 return rc;
         }
+
 
         uint64_t cycle2 = 0;
         rc = hb_mc_manycore_get_cycle(device.mc, &cycle2);
@@ -250,6 +270,7 @@ int kernel_matrix_mul (int argc, char **argv) {
                 }
         }
 
+        bsg_pr_test_info("FHQWHGADS\n");
 
         if (mismatch) {
                 bsg_pr_err(BSG_RED("Matrix Mismatch.\n"));

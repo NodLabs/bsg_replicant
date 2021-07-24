@@ -1,19 +1,19 @@
 # Copyright (c) 2019, University of Washington All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
-# 
+#
 # Redistributions of source code must retain the above copyright notice, this list
 # of conditions and the following disclaimer.
-# 
+#
 # Redistributions in binary form must reproduce the above copyright notice, this
 # list of conditions and the following disclaimer in the documentation and/or
 # other materials provided with the distribution.
-# 
+#
 # Neither the name of the copyright holder nor the names of its contributors may
 # be used to endorse or promote products derived from this software without
 # specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -77,7 +77,7 @@ $(LIBMACHINE_OBJECTS): $(MACHINES_PATH)/%.o: $(VERILATOR_ROOT)/include/%.cpp
 # implementation of the Vmanycore_tb_top and allows
 # libbsg_manycore_runtime to be compiled independently from the
 # machine.
-$(BSG_PLATFORM_PATH)/bsg_manycore_simulator.o: INCLUDES := -I$(BSG_PLATFORM_PATH) 
+$(BSG_PLATFORM_PATH)/bsg_manycore_simulator.o: INCLUDES := -I$(BSG_PLATFORM_PATH)
 $(BSG_PLATFORM_PATH)/bsg_manycore_simulator.o: INCLUDES += -I$(BSG_MACHINE_PATH)/notrace
 $(BSG_PLATFORM_PATH)/bsg_manycore_simulator.o: INCLUDES += -I$(BSG_MACHINE_PATH)
 $(BSG_PLATFORM_PATH)/bsg_manycore_simulator.o: INCLUDES += -I$(BASEJUMP_STL_DIR)/bsg_test
@@ -99,7 +99,7 @@ VERILATOR_VFLAGS += -Wno-widthconcat -Wno-unoptflat -Wno-lint
 VERILATOR_VFLAGS += --assert
 # These enable verilator tracing
 # VERILATOR_VFLAGS += --trace --trace-structs
-$(BSG_MACHINE_PATH)/V$(BSG_DESIGN_TOP).mk: $(VHEADERS) $(VSOURCES) 
+$(BSG_MACHINE_PATH)/V$(BSG_DESIGN_TOP).mk: $(VHEADERS) $(VSOURCES)
 	$(info BSG_INFO: Running verilator)
 	@$(VERILATOR) -Mdir $(dir $@) --cc $(VERILATOR_CFLAGS) $(VERILATOR_VFLAGS) $^ --top-module $(BSG_DESIGN_TOP)
 
@@ -115,7 +115,7 @@ $(BSG_MACHINE_PATH)/libmachine.so: LD = $(CXX)
 $(BSG_MACHINE_PATH)/libmachine.so: $(LIBMACHINE_OBJECTS)
 $(BSG_MACHINE_PATH)/libmachine.so: $(BSG_PLATFORM_PATH)/bsg_manycore_simulator.o
 $(BSG_MACHINE_PATH)/libmachine.so: $(BSG_MACHINE_PATH)/V$(BSG_DESIGN_TOP)__ALL.a
-	$(LD) -shared -Wl,--whole-archive,-soname,$@ -o $@ $^ -Wl,--no-whole-archive
+	$(LD) -shared -Wl,--whole-archive,-soname,$@ -o $@ $^ -Wl,--no-whole-archive -ldramsim3 -Wl,-rpath=$(LIBRARIES_PATH)/features/dma/simulation -L$(LIBRARIES_PATH)/features/dma/simulation
 
 # Executable compilation rules
 LDFLAGS    += -lbsg_manycore_runtime -L$(BSG_PLATFORM_PATH) -Wl,-rpath=$(BSG_PLATFORM_PATH)
@@ -128,7 +128,7 @@ INCLUDES   += -I$(BSG_MACHINE_PATH)
 %: %.o $(BSG_MACHINE_PATH)/libmachine.so $(BSG_PLATFORM_PATH)/libbsg_manycore_runtime.so
 	g++ -std=c++11 $< -o $@ $(LDFLAGS)
 
-# Remove the machine library files. 
+# Remove the machine library files.
 machine.clean:
 	rm -rf $(BSG_MACHINE_PATH)/libmachine.so
 	rm -rf $(LIBMACHINE_OBJECTS)

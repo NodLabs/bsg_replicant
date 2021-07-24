@@ -1,19 +1,19 @@
 # Copyright (c) 2019, University of Washington All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
-# 
+#
 # Redistributions of source code must retain the above copyright notice, this list
 # of conditions and the following disclaimer.
-# 
+#
 # Redistributions in binary form must reproduce the above copyright notice, this
 # list of conditions and the following disclaimer in the documentation and/or
 # other materials provided with the distribution.
-# 
+#
 # Neither the name of the copyright holder nor the names of its contributors may
 # be used to endorse or promote products derived from this software without
 # specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,7 +28,7 @@
 ifndef __BSG_LIBRARIES_MK
 __BSG_LIBRARIES_MK := 1
 
-LIB_CSOURCES   += 
+LIB_CSOURCES   +=
 LIB_CSOURCES   += $(LIBRARIES_PATH)/bsg_manycore_memsys.c
 LIB_CXXSOURCES += $(LIBRARIES_PATH)/bsg_manycore.cpp
 LIB_CXXSOURCES += $(LIBRARIES_PATH)/bsg_manycore_bits.cpp
@@ -91,8 +91,8 @@ LIB_OBJECTS += $(patsubst %cpp,%o,$(LIB_CXXSOURCES))
 LIB_OBJECTS += $(patsubst %c,%o,$(LIB_CSOURCES))
 
 # I don't like these, but they'll have to do for now.
-$(BSG_PLATFORM_PATH)/libbsg_manycore_runtime.so.1.0: LDFLAGS := 
-$(BSG_PLATFORM_PATH)/libbsg_manycore_runtime.so.1.0: INCLUDES := 
+$(BSG_PLATFORM_PATH)/libbsg_manycore_runtime.so.1.0: LDFLAGS :=
+$(BSG_PLATFORM_PATH)/libbsg_manycore_runtime.so.1.0: INCLUDES :=
 
 include $(BSG_PLATFORM_PATH)/library.mk
 
@@ -102,8 +102,8 @@ $(LIB_OBJECTS): INCLUDES += -I$(LIBRARIES_PATH)/features/dma
 $(LIB_OBJECTS): INCLUDES += -I$(LIBRARIES_PATH)/features/profiler
 # We should move this from AWS (and keep the license)
 $(LIB_OBJECTS): INCLUDES += -I$(AWS_FPGA_REPO_DIR)/SDAccel/userspace/include
-$(LIB_OBJECTS): CFLAGS    += -std=c11 -fPIC -D_GNU_SOURCE $(INCLUDES) -D_BSD_SOURCE
-$(LIB_OBJECTS): CXXFLAGS  += -std=c++11 -fPIC -D_GNU_SOURCE $(INCLUDES) -D_BSD_SOURCE
+$(LIB_OBJECTS): CFLAGS    += -std=c11 -fPIC -D_GNU_SOURCE $(INCLUDES) -D_BSD_SOURCE -D_DEFAULT_SOURCE
+$(LIB_OBJECTS): CXXFLAGS  += -std=c++11 -fPIC -D_GNU_SOURCE $(INCLUDES) -D_BSD_SOURCE -D_DEFAULT_SOURCE
 # Need to move this, eventually
 #$(LIB_OBJECTS) $(PLATFORM_OBJECTS): $(BSG_MACHINE_PATH)/bsg_manycore_machine.h
 
